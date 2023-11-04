@@ -1,5 +1,8 @@
 import { UIElement, UIButton } from './UIElement';
-import { getGradient, AcuteTriangle, Circle, Rectangle, SemicircleBar, LEFT_TO_RIGHT, RIGHT_TO_LEFT, TOP_TO_BOTTOM, BOTTOM_TO_TOP } from '../UserInterface_TS/Primitives';
+import { getGradient, AcuteTriangle, Circle, Rectangle, SemicircleBar,
+         CircleOptions,
+         LEFT_TO_RIGHT, RIGHT_TO_LEFT, TOP_TO_BOTTOM, BOTTOM_TO_TOP
+       } from '../UserInterface_TS/Primitives';
 import { clamp } from '../Utilities_TS/mathUtils';
 export const ICON_UP_TOP_HEX = '#000000';
 export const ICON_UP_BOTTOM_HEX = '#333333';
@@ -109,7 +112,6 @@ export class RectButton extends UIElement {
             left = 0,
             top = 0,
         } = options;
-
         const rim = new Rectangle({
             width,
             height,
@@ -117,16 +119,13 @@ export class RectButton extends UIElement {
             background: rimHex,
             top: 1,
         });
-
         const shadedRect = new ShadedRect({
             width,
             height,
             bottomGradientHex,
         });
-
         this.appendChild(rim);
         this.appendChild(shadedRect);
-
         UIElement.assignStyles(this, {
             left: `${left}px`,
             top: `${top}px`,
@@ -135,31 +134,70 @@ export class RectButton extends UIElement {
 }
 
 export class ShadedCircle extends iButton {
-    upGradient: string;
-    downGradient: string;
-    upOptions: {
-        width: number;
-        height: number;
-        background: string;
-        top: number;
-        left: number;
-    };
-    downOptions: {
-        width: number;
-        height: number;
-        background: string;
-        top: number;
-        left: number;
-    };
-    light: Circle;
-    gradient: Circle;
-
+    private upGradient: string;
+    private downGradient: string;
+    private upOptions: CircleOptions;
+    private downOptions: CircleOptions;
+    private light: Circle;
+    private gradient: Circle;
     constructor(options: {
-        upFunction: () => void,
-        diameter: number,
-        darkHex: string,
-        lightHex: string,
-        bottomGradientHex: string,
+        upFunction: (() => void) | null;
+        diameter: number;
+        darkHex?: string;
+        lightHex?: string;
+        bottomGradientHex: string;
     }) {
         const {
-            upFunction
+            upFunction,
+            diameter,
+            darkHex = '#333333',
+            lightHex = '#ffffff',
+            bottomGradientHex,
+        } = options;
+        const dark = new Circle({
+            width: diameter,
+            height: diameter,
+            background: darkHex,
+        });
+        super(dark, upFunction);
+        this.upGradient = `linear-gradient(${lightHex}, ${bottomGradientHex}`;
+        this.downGradient = `linear-gradient(${bottomGradientHex}, ${lightHex})`;
+        this.upOptions = {
+            width: diameter - 2,
+            height: diameter - 3,
+            background: this.upGradient,
+            left: 1,
+            top: 2
+        };
+        this.downOptions = {
+            width: diameter - 2,
+            height: diameter - 2,
+            background: this.downGradient,
+            top: 1,
+            left: 1,
+        };
+        const lightDiameter: number = diameter - 2;
+        this.light = new Circle({
+            width: lightDiameter,
+            height: lightDiameter,
+            background: lightHex,
+            top: 1,
+            left: 1,
+        });
+        this.gradient = new Circle(this.upOptions);
+        this.appendChild(dark);
+        this.appendChild(this.light);
+        this.appendChild(this.gradient);
+    }
+
+    /*upState() {
+      this.light.style.display = 'inline-block';
+      this.gradient.parseOptions(this.upOptions);
+    }
+
+    downState() {
+      this.light.style display = 'none';
+      this.gradient.parseOptions(this.downOptions);
+    }*/
+}
+  

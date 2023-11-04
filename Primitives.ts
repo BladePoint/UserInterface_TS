@@ -4,6 +4,8 @@ export const LEFT_TO_RIGHT = 'leftToRight';
 export const RIGHT_TO_LEFT = 'rightToLeft';
 export const TOP_TO_BOTTOM = 'topToBottom';
 export const BOTTOM_TO_TOP = 'bottomToTop';
+export interface RectangleOptions { width: number; height: number; background: string; borderRadius?: number; left?: number; top?: number; }
+export interface CircleOptions { width: number; height: number; background: string; left?: number; top?: number; }
 export function getGradient(id: string, colors: string[], direction: string | { x1: number; y1: number; degrees: number; distance: number }) {
     const parseDirection = (gradient: SVGElement, direction: string | { x1: number; y1: number; degrees: number; distance: number }) => {
         let x1: number;
@@ -71,14 +73,7 @@ export function getGradient(id: string, colors: string[], direction: string | { 
 }
 
 export class Rectangle extends UIElement {
-    constructor(options: {
-        width: number;
-        height: number;
-        background: string;
-        borderRadius?: number;
-        left?: number;
-        top?: number;
-    }) {
+    constructor(options: RectangleOptions) {
         super();
         const { width, height, background, borderRadius = 0, left = 0, top = 0 } = options;
         this.assignStyles({
@@ -93,17 +88,12 @@ export class Rectangle extends UIElement {
 }
 
 export class Circle extends UIElement {
-    constructor(options: {
-        diameter: number;
-        background: string;
-        left?: number;
-        top?: number;
-    }) {
+    constructor(options: CircleOptions) {
         super();
-        const { diameter, background, left = 0, top = 0 } = options;
+        const { width, height, background, left = 0, top = 0 } = options;
         this.assignStyles({
-            width: diameter,
-            height: diameter,
+            width: width,
+            height: height,
             borderRadius: '50%',
             background,
             left,
